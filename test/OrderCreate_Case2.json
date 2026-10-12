@@ -1,0 +1,11 @@
+{
+  "billingAddress": "123 Main St, Springfield",
+  "customerId": "", //Completar
+  "notes": "",
+  "orderItems": [
+    {
+      "productId": "", //Completar
+      "quantity": 2
+    }
+  ]
+}

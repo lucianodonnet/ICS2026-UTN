@@ -1,0 +1,11 @@
+{
+  "shippingAddress": "123 Main St, Springfield",
+  "billingAddress": "123 Main St, Springfield",
+  "customerId": "not-a-guid",
+  "orderItems": [
+    {
+      "productId": "", //Completar
+      "quantity": 2
+    }
+  ]
+}

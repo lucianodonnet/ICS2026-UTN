@@ -1,0 +1,94 @@
+[
+  {
+    "shippingAddress": "Av. San Martín 1234",
+    "billingAddress": "Av. San Martín 1234",
+    "notes": "Entregar después de las 17hs",
+    "customerId": "8ee65b9a-6746-4401-a885-09a9f7c67ed2",
+    "orderItems": [
+      {
+        "quantity": 2,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089caa"
+      }
+    ]
+  },
+  {
+    "shippingAddress": "Calle Florida 789",
+    "billingAddress": "Av. Corrientes 456",
+    "notes": "Regalo - incluir tarjeta de felicitación",
+    "customerId": "8ee65b9a-6746-4401-a885-09a9f7c67ed4",
+    "orderItems": [
+      {
+        "quantity": 1,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089cab"
+      },
+      {
+        "quantity": 3,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089cac"
+      }
+    ]
+  },
+  {
+    "shippingAddress": "Av. Libertador 5678",
+    "billingAddress": "Av. Libertador 5678",
+    "notes": "Factura A requerida",
+    "customerId": "8ee65b9a-6746-4401-a885-09a9f7c67ed5",
+    "orderItems": [
+      {
+        "quantity": 1,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089cad"
+      },
+      {
+        "quantity": 2,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089cae"
+      },
+      {
+        "quantity": 1,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089caf"
+      }
+    ]
+  },
+  {
+    "shippingAddress": "Calle Falsa 123",
+    "billingAddress": "Calle Falsa 123",
+    "notes": "Entregar antes de las 18 hs",
+    "customerId": "8ee65b9a-6746-4401-a885-09a9f7c67ed2",
+    "orderItems": [
+      {
+        "quantity": 3,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089cad"
+      },
+      {
+        "quantity": 1,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089caf"
+      }
+    ]
+  },
+  {
+    "shippingAddress": "Av. Belgrano 221",
+    "billingAddress": "Av. Belgrano 221",
+    "notes": "Factura B",
+    "customerId": "8ee65b9a-6746-4401-a885-09a9f7c67ed6",
+    "orderItems": [
+      {
+        "quantity": 2,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089cae"
+      }
+    ]
+  },
+  {
+    "shippingAddress": "San Martín 890",
+    "billingAddress": "San Martín 892",
+    "notes": "Cliente habitual - aplicar descuento",
+    "customerId": "8ee65b9a-6746-4401-a885-09a9f7c67ed4",
+    "orderItems": [
+      {
+        "quantity": 1,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089cac"
+      },
+      {
+        "quantity": 2,
+        "productId": "b9ed5544-42dc-439c-b4d7-15e720089cab"
+      }
+    ]
+  }
+]

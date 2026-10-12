@@ -1,0 +1,7 @@
+{
+  "shippingAddress": "123 Main St, Springfield",
+  "billingAddress": "123 Main St, Springfield",
+  "notes": "",
+  "customerId": "", //Completar
+  "orderItems": []
+}

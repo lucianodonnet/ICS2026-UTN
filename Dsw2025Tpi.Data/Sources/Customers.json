@@ -1,0 +1,44 @@
+[
+  {
+    "id": "8ee65b9a-6746-4401-a885-09a9f7c67ed1",
+    "name": "Sofia Ramirez",
+    "email": "sofia.ramirez@example.com",
+    "phone": "+54 9 11 5678 4321"
+  },
+  {
+    "id": "8ee65b9a-6746-4401-a885-09a9f7c67ed2",
+    "name": "Tomas Castillo",
+    "email": "tomas.aguirre@example.com",
+    "phoneNumber": "+54 9 261 445 8899"
+  },
+  {
+    "id": "8ee65b9a-6746-4401-a885-09a9f7c67ed3",
+    "name": "Camila Lopez",
+    "email": "camila.lopez@example.com",
+    "phoneNumber": "+54 9 379 123 4567"
+  },
+  {
+    "id": "8ee65b9a-6746-4401-a885-09a9f7c67ed4",
+    "name": "Mariano Garcia",
+    "email": "mariano.garcia@example.com",
+    "phoneNumber": "+54 11 2345-6789"
+  },
+  {
+    "id": "8ee65b9a-6746-4401-a885-09a9f7c67ed5",
+    "name": "Miguel Merentiel",
+    "email": "migue.merentielBcJrs@example.com",
+    "phoneNumber": "+54 9 351 123-4567"
+  },
+  {
+    "id": "8ee65b9a-6746-4401-a885-09a9f7c67ed6",
+    "name": "Ana Rodriguez",
+    "email": "ana.rodriguez@example.com",
+    "phoneNumber": "+54 261 987-6543"
+  },
+  {
+    "id": "8ee65b9a-6746-4401-a885-09a9f7c67ed7",
+    "name": "Lucas Fernandez",
+    "email": "lucas.fernandez@example.com",
+    "phoneNumber": "+54 11 1122-3344"
+  }
+]
