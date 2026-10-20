@@ -9,7 +9,7 @@ on:
 
 env:
   DOCKERHUB_USERNAME: chirinaar
-  IMAGE_NAME: ics-backend
+  IMAGE_NAME: ics2026-tfi
 
 jobs:
   build-and-deploy:
@@ -37,3 +37,11 @@ jobs:
         run: |
           docker push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           docker push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: 5. Desplegar el contenedor en Azure App Service
+        if: github.event_name != 'pull_request'
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.APP_SERVICE_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          images: ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
