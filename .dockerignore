@@ -1,0 +1,20 @@
+# Control de versiones y CI
+.git
+.github
+
+# Salidas de compilación
+**/bin
+**/obj
+
+# Casos de prueba manuales
+test
+testC
+
+# Carpetas de publicación local
+**/publish
+**/publish-*
+publish-check
+
+# Archivos de entorno local
+.vs
+**/*.user

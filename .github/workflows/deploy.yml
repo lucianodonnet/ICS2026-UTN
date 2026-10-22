@@ -18,13 +18,24 @@ jobs:
       - name: 1. Obtener el código
         uses: actions/checkout@v4
 
-      - name: 2. Iniciar sesión en Docker Hub
+      - name: 2. Configurar .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: 3. Restaurar dependencias
+        run: dotnet restore Dsw2025Tpi.sln
+
+      - name: 4. Compilar la solución
+        run: dotnet build Dsw2025Tpi.sln --no-restore -c Release
+
+      - name: 5. Iniciar sesión en Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: 3. Construir la imagen Docker (.NET 8)
+      - name: 6. Construir la imagen Docker (.NET 8)
         run: |
           docker build \
             -t ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
@@ -32,13 +43,13 @@ jobs:
             -f Dockerfile \
             .
 
-      - name: 4. Subir la imagen a Docker Hub
+      - name: 7. Subir la imagen a Docker Hub
         if: github.event_name != 'pull_request'
         run: |
           docker push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           docker push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
 
-      - name: 5. Desplegar el contenedor en Azure App Service
+      - name: 8. Desplegar el contenedor en Azure App Service
         if: github.event_name != 'pull_request'
         uses: azure/webapps-deploy@v3
         with:

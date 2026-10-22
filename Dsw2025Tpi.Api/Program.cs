@@ -129,9 +129,9 @@ public class Program
                 var authContext = scope.ServiceProvider.GetRequiredService<AuthenticateContext>();
                 authContext.Database.Migrate();
 
-                dbContext.Seedwork<Product>("Sources/products.json");
-                dbContext.Seedwork<Customer>("Sources/customers.json");
-                dbContext.Seedwork<Order>("Sources/orders.json");
+                dbContext.Seedwork<Product>("Sources/Products.json");
+                dbContext.Seedwork<Customer>("Sources/Customers.json");
+                dbContext.Seedwork<Order>("Sources/Orders.json");
 
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
