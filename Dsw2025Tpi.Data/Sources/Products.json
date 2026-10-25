@@ -1,0 +1,56 @@
+[
+  {
+    "id": "b9ed5544-42dc-439c-b4d7-15e720089caa",
+    "sku": "ABC123",
+    "internalCode": "INT-001",
+    "name": "Producto de ejemplo",
+    "description": "Descripción del producto de ejemplo.",
+    "currentUnitPrice": 199.99,
+    "stockQuantity": 50
+  },
+  {
+    "id": "b9ed5544-42dc-439c-b4d7-15e720089cab",
+    "sku": "XYZ456",
+    "internalCode": "INT-002",
+    "name": "Otro producto de ejemplo",
+    "description": "Descripción de otro producto de ejemplo.",
+    "currentUnitPrice": 299.99,
+    "stockQuantity": 30
+  },
+  {
+    "id": "b9ed5544-42dc-439c-b4d7-15e720089cac",
+    "sku": "LMN789",
+    "internalCode": "INT-003",
+    "name": "Producto adicional",
+    "description": "Descripción de un producto adicional.",
+    "currentUnitPrice": 149.99,
+    "stockQuantity": 75
+  },
+  {
+    "id": "b9ed5544-42dc-439c-b4d7-15e720089cad",
+    "sku": "PQR012",
+    "internalCode": "INT-004",
+    "name": "Producto especial",
+    "description": "Descripción de un producto especial.",
+    "currentUnitPrice": 399.99,
+    "stockQuantity": 20
+  },
+  {
+    "id": "b9ed5544-42dc-439c-b4d7-15e720089cae",
+    "sku": "STU345",
+    "internalCode": "INT-005",
+    "name": "Producto de temporada",
+    "description": "Descripción de un producto de temporada.",
+    "currentUnitPrice": 89.99,
+    "stockQuantity": 100
+  },
+  {
+    "id": "b9ed5544-42dc-439c-b4d7-15e720089caf",
+    "sku": "FDD234",
+    "internalCode": "FDD-234",
+    "name": "FDD Prime",
+    "description": "Perfume de Nicho Elixir",
+    "currentUnitPrice": 999999.99,
+    "stockQuantity": 3
+  }
+]

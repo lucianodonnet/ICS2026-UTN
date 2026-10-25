@@ -1,0 +1,15 @@
+{
+  "shippingAddress": "123 Main St, Springfield",
+  "billingAddress": "123 Main St, Springfield",
+  "customerId": "65442a40-3014-447e-9545-a8d79248412d",
+  "orderItems": [
+    {
+      "productId": "24a04862-e123-4cde-95bb-442a43c870ee",
+      "quantity": 2
+    },
+    {
+      "productId": "975b4d4d-01a9-47e8-87c9-533bf59ae94a",
+      "quantity": 1
+    }
+  ]
+}
