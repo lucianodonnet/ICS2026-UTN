@@ -1,11 +1,21 @@
 ﻿using Dsw2025Tpi.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Dsw2025Tpi.Data.Helpers;
 
 public static class DbContextExtensions
 {
+    private static readonly JsonSerializerOptions SeedJsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        TypeInfoResolver = new DefaultJsonTypeInfoResolver
+        {
+            Modifiers = { IncludeEntityId }
+        }
+    };
+
     public static void Seedwork<T>(this Dsw2025TpiContext context, string? dataSource) where T : class
     {
         // Si ya hay datos, no hacer nada
@@ -16,77 +26,84 @@ public static class DbContextExtensions
 
         var path = Path.Combine(AppContext.BaseDirectory, dataSource);
 
-        // Si el archivo no existe, salir
-        if (!File.Exists(path)) return;
+        // Si el archivo no existe, avisar y salir
+        if (!File.Exists(path))
+        {
+            Console.WriteLine($"Advertencia: no se encontró el archivo de seed {path}. No se cargan datos de {typeof(T).Name}.");
+            return;
+        }
 
         var json = File.ReadAllText(path);
-        var entities = JsonSerializer.Deserialize<List<T>>(json, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-        });
+        var entities = JsonSerializer.Deserialize<List<T>>(json, SeedJsonOptions);
 
         if (entities == null || entities.Count == 0) return;
 
         // Caso especial para Orders
         if (typeof(T) == typeof(Order))
         {
-            var orders = entities.Cast<Order>().ToList();
-            foreach (var order in orders)
+            SeedOrders(context, entities.Cast<Order>());
+            return;
+        }
+
+        // Para otras entidades
+        context.Set<T>().AddRange(entities);
+        context.SaveChanges();
+    }
+
+    // Cada orden se recrea con su constructor y sus ítems se vinculan a la orden nueva,
+    // tomando el precio actual de cada producto.
+    private static void SeedOrders(Dsw2025TpiContext context, IEnumerable<Order> orders)
+    {
+        foreach (var order in orders)
+        {
+            if (!context.Customers.Any(c => c.Id == order.CustomerId))
             {
-                var customerExists = context.Customers.Any(c => c.Id == order.CustomerId);
-                if (!customerExists)
+                Console.WriteLine($"Advertencia: no existe el cliente {order.CustomerId}. Se omite la orden.");
+                continue;
+            }
+
+            var orderToAdd = new Order(order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId)
+            {
+                Date = order.Date,
+                Status = order.Status
+            };
+
+            foreach (var item in order.OrderItems ?? [])
+            {
+                var product = context.Products.Find(item.ProductId);
+                if (product == null)
                 {
-                    Console.WriteLine($"Warning: Customer {order.CustomerId} not found for order {order.Id}. Skipping order.");
+                    Console.WriteLine($"Advertencia: no existe el producto {item.ProductId}. Se omite el ítem.");
                     continue;
                 }
 
-                var orderToAdd = new Order(order.ShippingAddress, order.BillingAddress, order.Notes, order.CustomerId)
-                {
-                    Date = order.Date,
-                    Status = order.Status
-                };
-
-                context.Orders.Add(orderToAdd);
+                orderToAdd.OrderItems.Add(new OrderItem(item.Quantity, product.CurrentUnitPrice, orderToAdd.Id, product.Id));
             }
-            context.SaveChanges();
 
-            foreach (var order in orders)
+            // Una orden sin ítems no se guarda: si se guardara, la tabla dejaría de estar vacía
+            // y el seed no volvería a cargar las órdenes cuando los productos estén correctos.
+            if (orderToAdd.OrderItems.Count == 0)
             {
-                if (order.OrderItems?.Any() == true)
-                {
-                    foreach (var item in order.OrderItems)
-                    {
-                        var product = context.Products.Find(item.ProductId);
-                        if (product != null)
-                        {
-                            var orderItem = new OrderItem(item.Quantity, product.CurrentUnitPrice, order.Id, item.ProductId);
-                            context.OrderItems.Add(orderItem);
-                        }
-                    }
-                }
+                Console.WriteLine($"Advertencia: la orden del cliente {order.CustomerId} no tiene ítems válidos. Se omite.");
+                continue;
             }
-            context.SaveChanges();
 
-            // Actualizar precios
-            var savedOrders = context.Orders.Include(o => o.OrderItems).ToList();
-            foreach (var order in savedOrders)
-            {
-                foreach (var item in order.OrderItems)
-                {
-                    var product = context.Products.Find(item.ProductId);
-                    if (product != null)
-                    {
-                        item.UnitPrice = product.CurrentUnitPrice;
-                    }
-                }
-            }
-            context.SaveChanges();
+            context.Orders.Add(orderToAdd);
         }
-        else
-        {
-            // Para otras entidades
-            context.Set<T>().AddRange(entities);
-            context.SaveChanges();
-        }
+
+        context.SaveChanges();
+    }
+
+    // EntityBase.Id tiene setter protegido, así que el serializador ignoraba el "id" de los JSON
+    // y cada entidad recibía un Guid nuevo: las órdenes del seed no encontraban sus productos.
+    private static void IncludeEntityId(JsonTypeInfo typeInfo)
+    {
+        if (!typeof(EntityBase).IsAssignableFrom(typeInfo.Type)) return;
+
+        var idProperty = typeInfo.Properties.FirstOrDefault(p => p.Name == nameof(EntityBase.Id));
+        if (idProperty == null || idProperty.Set != null) return;
+
+        var idSetter = typeof(EntityBase).GetProperty(nameof(EntityBase.Id))!.GetSetMethod(nonPublic: true)!;
+        idProperty.Set = (entity, value) => idSetter.Invoke(entity, [value]);
     }
 }

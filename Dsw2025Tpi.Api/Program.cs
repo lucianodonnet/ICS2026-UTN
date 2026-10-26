@@ -1,4 +1,4 @@
-using Dsw2025Tpi.Api.DependencyInjection;
+﻿using Dsw2025Tpi.Api.DependencyInjection;
 using Dsw2025Tpi.Application.Services;
 using Dsw2025Tpi.Data;
 using Dsw2025Tpi.Data.Helpers;
@@ -58,11 +58,19 @@ public class Program
                     }
                 });
         });
+        // Orígenes del frontend: se definen en appsettings (Cors:AllowedOrigins). En Azure se configuran
+        // con variables de entorno por posición: Cors__AllowedOrigins__0 y __1 reemplazan los de appsettings;
+        // para sumar un origen sin perder esos se usa __2, __3, etc. La barra final se quita porque el
+        // navegador envía el Origin sin ella.
+        var allowedOrigins = (builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [])
+            .Where(origin => !string.IsNullOrWhiteSpace(origin))
+            .Select(origin => origin.Trim().TrimEnd('/'))
+            .ToArray();
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("AllowFrontend", policy =>
             {
-                policy.WithOrigins("http://localhost:5173", "http://localhost:5174") // Agregamos ambos puertos porque no logr� otra solucion :/
+                policy.WithOrigins(allowedOrigins)
                       .AllowAnyHeader()
                       .AllowAnyMethod()
                       .AllowCredentials();
@@ -70,10 +78,12 @@ public class Program
         });
         builder.Services.AddHealthChecks();
 
-        // Registrar primero el DbContext de autenticaci�n antes de configurar Identity
+        // Registrar primero el DbContext de autenticación antes de configurar Identity
+        // EnableRetryOnFailure: Azure SQL (plan Free) se pausa sin actividad y la primera conexión puede fallar
         builder.Services.AddDbContext<AuthenticateContext>(options =>
         {
-            options.UseSqlServer(builder.Configuration.GetConnectionString("Dsw2025Tpi"));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("Dsw2025Tpi"),
+                sql => sql.EnableRetryOnFailure());
         });
 
         builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
