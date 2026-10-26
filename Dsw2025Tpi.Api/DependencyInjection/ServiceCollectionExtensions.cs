@@ -16,7 +16,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<OrdersManagementService>();
 
         services.AddDbContext<Dsw2025TpiContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("Dsw2025Tpi")));
+            options.UseSqlServer(configuration.GetConnectionString("Dsw2025Tpi"),
+                sql => sql.EnableRetryOnFailure()));
 
         return services;
     }
