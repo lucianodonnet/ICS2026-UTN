@@ -361,3 +361,24 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# --- Archivos locales de cada integrante ---
+
+# Configuración de editores
+.vscode/
+.idea/
+
+# Archivos de Windows y OneDrive
+desktop.ini
+Thumbs.db
+
+# Resultados de pruebas
+[Tt]est[Rr]esult*/
+*.trx
+
+# Publicaciones locales de prueba
+publish-*/
+
+# Variables de entorno locales
+.env
+.env.*

@@ -1,0 +1,22 @@
+# Control de versiones y CI
+.git
+.github
+
+# Salidas de compilación
+**/bin
+**/obj
+
+# Pruebas (no forman parte de la imagen de la API)
+test
+testC
+Dsw2025Tpi.Tests
+**/[Tt]est[Rr]esult*
+
+# Carpetas de publicación local
+**/publish
+**/publish-*
+publish-check
+
+# Archivos de entorno local
+.vs
+**/*.user

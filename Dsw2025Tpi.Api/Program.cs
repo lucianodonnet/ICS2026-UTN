@@ -1,4 +1,4 @@
-using Dsw2025Tpi.Api.DependencyInjection;
+Ôªøusing Dsw2025Tpi.Api.DependencyInjection;
 using Dsw2025Tpi.Application.Services;
 using Dsw2025Tpi.Data;
 using Dsw2025Tpi.Data.Helpers;
@@ -58,11 +58,19 @@ public class Program
                     }
                 });
         });
+        // Or√≠genes del frontend: se definen en appsettings (Cors:AllowedOrigins). En Azure se configuran
+        // con variables de entorno por posici√≥n: Cors__AllowedOrigins__0 y __1 reemplazan los de appsettings;
+        // para sumar un origen sin perder esos se usa __2, __3, etc. La barra final se quita porque el
+        // navegador env√≠a el Origin sin ella.
+        var allowedOrigins = (builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [])
+            .Where(origin => !string.IsNullOrWhiteSpace(origin))
+            .Select(origin => origin.Trim().TrimEnd('/'))
+            .ToArray();
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("AllowFrontend", policy =>
             {
-                policy.WithOrigins("http://localhost:5173", "http://localhost:5174") // Agregamos ambos puertos porque no logrÈ otra solucion :/
+                policy.WithOrigins(allowedOrigins)
                       .AllowAnyHeader()
                       .AllowAnyMethod()
                       .AllowCredentials();
@@ -70,10 +78,12 @@ public class Program
         });
         builder.Services.AddHealthChecks();
 
-        // Registrar primero el DbContext de autenticaciÛn antes de configurar Identity
+        // Registrar primero el DbContext de autenticaci√≥n antes de configurar Identity
+        // EnableRetryOnFailure: Azure SQL (plan Free) se pausa sin actividad y la primera conexi√≥n puede fallar
         builder.Services.AddDbContext<AuthenticateContext>(options =>
         {
-            options.UseSqlServer(builder.Configuration.GetConnectionString("Dsw2025Tpi"));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("Dsw2025Tpi"),
+                sql => sql.EnableRetryOnFailure());
         });
 
         builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
@@ -121,79 +131,80 @@ public class Program
 
         using (var scope = app.Services.CreateScope())
         {
-            var dbContext = scope.ServiceProvider.GetRequiredService<Dsw2025TpiContext>();
-            dbContext.Database.Migrate();
-            var authContext = scope.ServiceProvider.GetRequiredService<AuthenticateContext>();
-            authContext.Database.Migrate();
-            dbContext.Seedwork<Product>("Sources/products.json");
-            dbContext.Seedwork<Customer>("Sources/customers.json");
-            dbContext.Seedwork<Order>("Sources/orders.json");
-           
-            
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-            foreach (var roleName in rolesToCreate!)
+            try
             {
-                if (!await roleManager.RoleExistsAsync(roleName))
+                var dbContext = scope.ServiceProvider.GetRequiredService<Dsw2025TpiContext>();
+                dbContext.Database.Migrate();
+
+                var authContext = scope.ServiceProvider.GetRequiredService<AuthenticateContext>();
+                authContext.Database.Migrate();
+
+                dbContext.Seedwork<Product>("Sources/Products.json");
+                dbContext.Seedwork<Customer>("Sources/Customers.json");
+                dbContext.Seedwork<Order>("Sources/Orders.json");
+
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+                foreach (var roleName in rolesToCreate!)
                 {
-                    await roleManager.CreateAsync(new IdentityRole(roleName));
+                    if (!await roleManager.RoleExistsAsync(roleName))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(roleName));
+                    }
+                }
+
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+                var adminSection = builder.Configuration.GetSection("DefaultAdminUser");
+
+                var userName = adminSection["UserName"];
+                var email = adminSection["Email"];
+                var password = adminSection["Password"];
+                var role = adminSection["Role"];
+
+                if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(email) ||
+                    string.IsNullOrEmpty(password) || string.IsNullOrEmpty(role))
+                {
+                    throw new InvalidOperationException("DefaultAdminUser configuration is missing or incomplete");
+                }
+
+                var adminUser = await userManager.FindByNameAsync(userName);
+                if (adminUser == null)
+                {
+                    var newUser = new IdentityUser
+                    {
+                        UserName = userName,
+                        Email = email,
+                        EmailConfirmed = true
+                    };
+
+                    var result = await userManager.CreateAsync(newUser, password);
+                    if (result.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(newUser, role);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Failed to create admin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    }
                 }
             }
-
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            var adminSection = builder.Configuration.GetSection("DefaultAdminUser");
-
-            // Add null checks and better error handling
-            var userName = adminSection["UserName"];
-            var email = adminSection["Email"];  
-            var password = adminSection["Password"];
-            var role = adminSection["Role"];
-
-            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(email) || 
-                string.IsNullOrEmpty(password) || string.IsNullOrEmpty(role))
+            catch (Exception ex)
             {
-                throw new InvalidOperationException("DefaultAdminUser configuration is missing or incomplete");
+                Console.WriteLine($"Advertencia: No se pudo inicializar la BD al arrancar: {ex.Message}");
             }
-
-            var adminUser = await userManager.FindByNameAsync(userName);
-            if (adminUser == null)
-            {
-                var newUser = new IdentityUser
-                {
-                    UserName = userName,
-                    Email = email,
-                    EmailConfirmed = true
-                };
-
-                var result = await userManager.CreateAsync(newUser, password);
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(newUser, role);
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Failed to create admin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-                }
-            }
-
         }
 
-        // Habilitar Swagger siempre y exponer la UI en la raÌz (/) para que se muestre al abrir la aplicaciÛn
         app.UseSwagger();
         app.UseSwaggerUI(options =>
         {
-            options.RoutePrefix = string.Empty; // servir Swagger UI en /
+            options.RoutePrefix = string.Empty;
             options.SwaggerEndpoint("/swagger/v1/swagger.json", "Dsw2025TPI - FLJ v1");
         });
 
         app.UseCors("AllowFrontend");
-        // Deshabilitar redirecciÛn a HTTPS para permitir acceder a Swagger en HTTP cuando no hay endpoint HTTPS configurado
-        // app.UseHttpsRedirection();
 
         app.UseAuthentication();
         app.UseAuthorization();
-
-      
 
         app.Logger.LogInformation("Application has started successfully.");
 
