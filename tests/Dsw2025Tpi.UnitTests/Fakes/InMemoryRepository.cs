@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using Dsw2025Tpi.Domain.Entities;
 using Dsw2025Tpi.Domain.Interfaces;
 
-namespace Dsw2025Tpi.Tests.Fakes;
+namespace Dsw2025Tpi.UnitTests.Fakes;
 
 // Repositorio en memoria para probar los servicios sin base de datos.
 public class InMemoryRepository : IRepository

@@ -2,7 +2,7 @@ using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Validation;
 using AppException = Dsw2025Tpi.Application.Exceptions.ApplicationException;
 
-namespace Dsw2025Tpi.Tests.Validation;
+namespace Dsw2025Tpi.UnitTests.Validation;
 
 public class ProductValidatorTests
 {

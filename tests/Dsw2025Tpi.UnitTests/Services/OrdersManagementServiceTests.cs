@@ -2,9 +2,9 @@ using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Exceptions;
 using Dsw2025Tpi.Application.Services;
 using Dsw2025Tpi.Domain.Entities;
-using Dsw2025Tpi.Tests.Fakes;
+using Dsw2025Tpi.UnitTests.Fakes;
 
-namespace Dsw2025Tpi.Tests.Services;
+namespace Dsw2025Tpi.UnitTests.Services;
 
 public class OrdersManagementServiceTests
 {

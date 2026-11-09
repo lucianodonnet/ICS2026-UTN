@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace Dsw2025Tpi.Tests.Data;
+namespace Dsw2025Tpi.UnitTests.Data;
 
 // Los archivos de seed se leen por nombre al arrancar la API (Program.cs).
 // En Linux el sistema de archivos distingue mayúsculas, así que el nombre debe ser exacto.

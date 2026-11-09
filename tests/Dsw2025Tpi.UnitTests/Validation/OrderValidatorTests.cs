@@ -1,7 +1,7 @@
 using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Validation;
 
-namespace Dsw2025Tpi.Tests.Validation;
+namespace Dsw2025Tpi.UnitTests.Validation;
 
 public class OrderValidatorTests
 {

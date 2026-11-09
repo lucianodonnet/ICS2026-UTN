@@ -4,7 +4,7 @@ using Dsw2025Tpi.Data.Helpers;
 using Dsw2025Tpi.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dsw2025Tpi.Tests.Data;
+namespace Dsw2025Tpi.UnitTests.Data;
 
 // Ejecuta el seed real (los mismos JSON que usa la API) sobre una base en memoria.
 public class SeedworkTests
