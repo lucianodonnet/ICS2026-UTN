@@ -67,11 +67,15 @@ public class ProductsController : ControllerBase
         try
         {
             var product = await _service.AddProduct(request);
-            return Ok(product);
+            return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
         }
         catch (ArgumentException ae)
         {
             return BadRequest(ae.Message);
+        }
+        catch (DuplicatedEntityException de)
+        {
+            return Conflict(de.Message);
         }
         catch (ApplicationException ioe)
         {

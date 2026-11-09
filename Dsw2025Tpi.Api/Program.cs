@@ -129,6 +129,9 @@ public class Program
 
         var rolesToCreate = builder.Configuration.GetSection("Roles").Get<List<string>>();
 
+        // En el entorno "Testing" (pruebas de integración) no se aplican las migraciones de SQL Server
+        // ni el seed: la base SQLite en memoria la crea y la carga la fábrica de pruebas.
+        if (!app.Environment.IsEnvironment("Testing"))
         using (var scope = app.Services.CreateScope())
         {
             try
