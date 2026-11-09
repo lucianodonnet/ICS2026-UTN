@@ -43,19 +43,10 @@ public class OrdersController : ControllerBase
             
             return CreatedAtAction(nameof(GetOrderById), new { id = Order.Id }, Order);
         }
-        catch (ArgumentException ae)
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or EntityNotFoundException)
         {
-            
-            return BadRequest(ae.Message);
-        }
-        catch (InvalidOperationException ioe)
-        {
-            
-            return BadRequest(ioe.Message);
-        }
-        catch (EntityNotFoundException ioe)
-        {
-            return BadRequest(ioe.Message);
+            // Error en JSON (ProblemDetails): el motivo, por ejemplo la falta de stock, viaja en "detail"
+            return Problem(detail: ex.Message, statusCode: StatusCodes.Status400BadRequest, title: "No se pudo crear la orden");
         }
     }
 
