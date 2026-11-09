@@ -71,7 +71,7 @@ namespace Dsw2025Tpi.Application.Services
                     (!request.CustomerId.HasValue || o.CustomerId == request.CustomerId.Value) &&
                     (!status.HasValue || o.Status == status.Value),
                 include: new[] { "OrderItems.Product", "Customer" }
-            );
+            ) ?? Enumerable.Empty<Order>();
 
             // 4. Calcular Total (Para la paginación)
             var totalCount = orders.Count();

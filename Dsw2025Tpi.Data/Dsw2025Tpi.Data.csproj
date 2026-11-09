@@ -20,8 +20,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="Sources\customers.json">
+		<None Update="Sources\*.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</None>
 	</ItemGroup>
 
