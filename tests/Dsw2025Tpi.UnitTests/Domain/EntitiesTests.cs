@@ -1,6 +1,6 @@
 using Dsw2025Tpi.Domain.Entities;
 
-namespace Dsw2025Tpi.Tests.Domain;
+namespace Dsw2025Tpi.UnitTests.Domain;
 
 public class EntitiesTests
 {
