@@ -39,7 +39,7 @@ public class OrdersController : ControllerBase
         try
         {
             
-            var Order = await _service.AddOrder(request);
+            var Order = await _service.CreateOrder(request);
             
             return CreatedAtAction(nameof(GetOrderById), new { id = Order.Id }, Order);
         }

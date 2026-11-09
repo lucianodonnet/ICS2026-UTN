@@ -61,7 +61,7 @@ namespace Dsw2025Tpi.Application.Services
             {
                 var customer = await _repository.GetById<Customer>(request.CustomerId.Value);
                 if (customer == null)
-                    throw new EntityNotFoundException($"Customer con el ID {request.CustomerId} not found.");
+                    throw new CustomerNotFoundException(request.CustomerId.Value);
             }
 
             // 3. Obtener datos filtrados
@@ -109,17 +109,40 @@ namespace Dsw2025Tpi.Application.Services
             return new OrderModel.ResponsePagination(paginatedItems, totalCount);
         }
 
-        public async Task<OrderModel.ResponseOrderModel> AddOrder(OrderModel.RequestOrderModel request)
+        public async Task<OrderModel.ResponseOrderModel> CreateOrder(OrderModel.RequestOrderModel request)
         {
             OrderValidator.Validate(request);
+            foreach (var item in request.OrderItems)
+                OrderItemValidator.Validate(item);
 
-            if (request.OrderItems == null || !request.OrderItems.Any())
-                throw new ArgumentException("La orden tiene que tener mas de un item.");
+            var customer = await _repository.GetById<Customer>(request.CustomerId)
+                ?? throw new CustomerNotFoundException(request.CustomerId);
 
-            var customer = await _repository.GetById<Customer>(request.CustomerId);
-            if (customer == null)
-                throw new EntityNotFoundException($"Customer con ID {request.CustomerId} not found.");
+            // 1. Se valida todo antes de modificar nada: si un ítem no tiene stock suficiente,
+            //    ningún producto queda descontado. Si un producto aparece en varias líneas,
+            //    se controla la suma de sus cantidades.
+            var products = new Dictionary<Guid, Product>();
+            foreach (var item in request.OrderItems)
+            {
+                if (!products.ContainsKey(item.ProductId))
+                {
+                    products[item.ProductId] = await _repository.GetById<Product>(item.ProductId)
+                        ?? throw new EntityNotFoundException($"Producto not found: {item.ProductId}");
+                }
+            }
 
+            var requestedByProduct = request.OrderItems
+                .GroupBy(item => item.ProductId)
+                .ToDictionary(group => group.Key, group => group.Sum(item => item.Quantity));
+
+            foreach (var (productId, requested) in requestedByProduct)
+            {
+                var product = products[productId];
+                if (product.StockQuantity < requested)
+                    throw new InsufficientStockException(product.Name, product.StockQuantity, requested);
+            }
+
+            // 2. Con todo validado, se arma la orden y se descuenta el stock
             var order = new Order(
                 request.ShippingAddress,
                 request.BillingAddress,
@@ -127,29 +150,15 @@ namespace Dsw2025Tpi.Application.Services
                 request.CustomerId
             );
 
-            var orderItems = new List<OrderItem>();
+            var orderItems = request.OrderItems
+                .Select(item => new OrderItem(item.Quantity, products[item.ProductId].CurrentUnitPrice, order.Id, item.ProductId))
+                .ToList();
 
-            foreach (var item in request.OrderItems)
+            foreach (var (productId, requested) in requestedByProduct)
             {
-                var product = await _repository.GetById<Product>(item.ProductId)
-                    ?? throw new EntityNotFoundException($"Producto not found: {item.ProductId}");
-
-                if (product.StockQuantity < item.Quantity)
-                    throw new InvalidOperationException($"Stock insuficiente: {product.Name}");
-
-                product.StockQuantity -= item.Quantity;
+                var product = products[productId];
+                product.StockQuantity -= requested;
                 await _repository.Update(product);
-
-                var orderItem = new OrderItem(
-                    item.Quantity,
-                    product.CurrentUnitPrice,
-                    order.Id,
-                    product.Id
-                );
-                orderItems.Add(orderItem);
-
-
-
             }
 
             order.OrderItems = orderItems;
@@ -171,7 +180,7 @@ namespace Dsw2025Tpi.Application.Services
                 order.BillingAddress,
                 order.Notes,
                 order.CustomerId,
-                order.Customer?.Name,
+                customer.Name,
                 order.Status,
                 order.TotalAmount,
                 responseItems
