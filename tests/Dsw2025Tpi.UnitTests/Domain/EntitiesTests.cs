@@ -59,4 +59,9 @@ public class EntitiesTests
     {
         Assert.Throws<ArgumentException>(() => new Product("SKU-1", "INT-1", "Producto", "Descripción", 10m, -1));
     }
+    [Fact]
+    public void Prueba_Para_Verificar_Bloqueo_De_Deploy()
+    {
+        Assert.True(false, "Fallo intencional para probar CI/CD");
+    }
 }
